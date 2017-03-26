@@ -4,7 +4,7 @@ import java.util.*;
 import java.math.*;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.commons.lang3.tuple.Pair<L,R>;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
