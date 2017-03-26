@@ -15,13 +15,11 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
-public class indexerMapper extends Mapper<Object, Text, Text, IntWritable>{
-
-  private IntWritable one = new IntWritable(1);
-  private LongWritable id = new LongWritable();
+public class indexerMapper extends Mapper<LongWritable, Text, Text, IntWritable>{
+  private LongWritable one = new LongWritable(1);
   private Text term = new Text();
 
-  public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+  public void map(LongWritable docID, Text value, Context context) throws IOException, InterruptedException {
     HashMap<Text, LongWritable> H = new HashMap<Text, LongWritable>();
     StringTokenizer itr = new StringTokenizer(value.toString());
 
@@ -35,12 +33,11 @@ public class indexerMapper extends Mapper<Object, Text, Text, IntWritable>{
       }
     }
 
-    for (Map.Entry<Text, IntWritable> entry : H.entrySet()) {
+    for (Map.Entry<Text, LongWritable> entry : H.entrySet()) {
       term = entry.getKey();
-      IntWritable freq = entry.getValue();
-      IntWritable tf = 1 + Math.log(freq);
-      id = ;//DETERMINE DOCUMENT ID
-      Pair<Text, LongWritable> key = new Pair<Text, LongWritable>(id, term);
+      LongWritable freq = entry.getValue();
+      LongWritable tf = 1 + Math.log(freq);
+      Pair<Text, LongWritable> key = new Pair<Text, LongWritable>(docID, term);
       context.write(key, tf);
     }
   }
