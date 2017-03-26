@@ -13,45 +13,25 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public static class indexerReducer extends Reducer<Text,IntWritable,Text,IntWritable> {
   private Text term;
-  private /*SOME TYPE*/ docID;
+  private LongWritable docID;
   private Text prevTerm;
   private Map postingList;
 
-  public void initialize {
+  public void initialize() {
     prevTerm = null;
     postingList = new HashMap();
   }
 
-  public void reduce(/*SOME TUPLE*/ key, IntWritable tf, Context context ) throws IOException, InterruptedException {
-    term = /*SOME TUPLE.left*/;
-    docID = /*SOME TUPLE.right*/;
+  public void reduce(Pair<Text, LongWritable> key, IntWritable tf, Context context ) throws IOException, InterruptedException {
+    term = key.getKey();
+    docID = key.getValue();
     if (!term.equals(prevTerm) && prevTerm != null) {
-      context.write(Text term, Map postingList);
-      postingList.
+      context.write(term, postingList);
+      postingList = new HashMap();
     }
   }
 
-  public void close {
-    context.write(Text term, Map postingList);
+  public void close() {
+    context.write(term, postingList);
   }
 }
-
-/*
-class REDUCER
-  method INITIALIZE {
-    tprev <-- 0
-    P <-- new PostingList
-  }
-  method REDUCE(tuple <t, d>, tf [f]) {
-    if (t ≠ tprev) and (tprev ≠ 0) then {
-      EMIT( term t, posting P );
-      P.RESET
-    }
-    P.ADD(d, f)
-    tprev <-- t
-  }
-  method CLOSE {
-    EMIT( term t, posting P )
-  }
-}
-*/
