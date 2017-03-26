@@ -10,7 +10,7 @@ public class Client{
             //System.out.println(f.toString());
         }
 
-        int input = 0;
+        int input;
         Scanner kbd = new Scanner(System.in);
         do{
             System.out.println("Enter an option:\n\t1. Search for a word \n\t2. Add a document \n\t3. Quit");
