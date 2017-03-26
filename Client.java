@@ -10,15 +10,15 @@ public class Client{
             //System.out.println(f.toString());
         }
 
-        int input = 0;
+        int input;
         Scanner kbd = new Scanner(System.in);
         do{
+            System.out.println("Enter an option:\n\t1. Search for a word \n\t2. Add a document \n\t3. Quit");
+            input = kbd.nextInt();
             if(input > 3 || input < 1){
                 System.out.println("Not a valid option");
                 continue;
             }
-            System.out.println("Enter an option:\n\t1. Search for a word \n\t2. Add a document \n\t3. Quit");
-            input = kbd.nextInt();
         }while(input != 3);
     }
 }
