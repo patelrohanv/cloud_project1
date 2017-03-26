@@ -4,6 +4,7 @@ import java.util.*;
 import java.math.*;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.commons.lang3.tuple.Pair<L,R>;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
@@ -21,21 +22,24 @@ public class indexerMapper extends Mapper<Object, Text, Text, IntWritable>{
   private Text term = new Text();
 
   public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-    Map H = new HashMap();
+    HashMap<Text, LongWritable> H = new HashMap<Text, LongWritable>();
     StringTokenizer itr = new StringTokenizer(value.toString());
 
     while (itr.hasMoreTokens()) {
       term.set(itr.nextToken());
-      if (!H.containsKey(term))
-      H.put(term, one);
-      else
-      H.put(term, H.get(term) + 1);
+      if (!H.containsKey(term)) {
+        H.put(term, one);
+      }
+      else {
+        H.put(term, H.get(term) + 1);
+      }
     }
 
     for (Map.Entry<Text, IntWritable> entry : H.entrySet()) {
       term = entry.getKey();
       IntWritable freq = entry.getValue();
       IntWritable tf = 1 + Math.log(freq);
+      id = ;//DETERMINE DOCUMENT ID
       Pair<Text, LongWritable> key = new Pair<Text, LongWritable>(id, term);
       context.write(key, tf);
     }
