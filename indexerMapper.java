@@ -34,7 +34,7 @@ public class indexerMapper extends Mapper<Object, Text, Text, IntWritable>{
       String key = entry.getKey();
       IntWritable freq = entry.getValue();
       IntWritable tf = 1 + Math.log(value);
-      //SOMETUPLE key = dId and Term
+      //SOMETUPLE key =  Term and dId
       context.write(key, tf);
     }
   }
