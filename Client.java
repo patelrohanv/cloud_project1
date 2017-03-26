@@ -3,6 +3,9 @@ import java.util.Scanner;
 
 public class Client{
     public static void main(String[] args){
+        System.out.println("__________________________________");
+        System.out.println("Welcome to tiny-Google");
+        System.out.println("__________________________________");
         int input;
         Scanner kbd = new Scanner(System.in);
         if (!indexed()) {
@@ -10,11 +13,10 @@ public class Client{
                 System.out.println("No index found on disk.\nWould you like to generate one now?\n\t1. Yes\n\t2. No");
                 input = kbd.nextInt();
                 if(input > 2 || input < 1){
-                    System.out.println("Not a valid option. Please try again.");
+                    System.out.println("Not a valid option. Please try again.\n");
                 }
                 else if (input == 1) {
-                    System.out.print("Please input the directory containing the files to be indexed:\t");
-                    String bookDir = kbd.nextLine();
+                    index();
                     break;
                 }
                 else {
@@ -61,20 +63,60 @@ public class Client{
     }
 
     public static void index(){
+        System.out.println("__________________________________");
         System.out.println("Creating index from directory.");
-        /*File directory = new File(args[0]);
-        File[] contents = directory.listFiles();
-        int i = 0;
-        for ( File f : contents) {
-            //System.out.println(f.toString());
-        }*/
+        System.out.println("__________________________________");
+
+        System.out.println("Please select the directory containing the files to be indexed from the following:\t");
+        Scanner kbd = new Scanner(System.in);
+        File currDir = new File(".");
+        currDir = new File(currDir.getAbsolutePath());
+        File[] contents = currDir.listFiles();
+        while(true) {
+            for (int i = 0; i < contents.length; i++) {
+                File f = contents[i];
+                System.out.println("\t"+i+".\t"+f.getName());
+            }
+            System.out.println("\t"+(contents.length+1)+".\tCancel");
+            int selection = kbd.nextInt();
+            if (selection < 0 || selection > contents.length+1) {
+                System.out.println("Invalid Selection.\nPlease try again.");
+            }
+            else if (selection == contents.length+1) {
+                System.out.println("Cancelling Indexing Operation.");
+                return;
+            }
+            else {
+                File indexDir = contents[selection];
+                if (!contents[selection].isDirectory())
+                {
+                    System.out.println(indexDir.toString() + " is not a directory.\nPlease try again.");
+                }
+                else {
+                    System.out.println("Generating index from the files in directory " + indexDir.toString());
+                    /*File directory = new File(args[0]);
+                    File[] contents = directory.listFiles();
+                    int i = 0;
+                    for ( File f : contents) {
+                        //System.out.println(f.toString());
+                    }*/
+                    break;
+                }
+            }
+        }
+        System.out.println("__________________________________");
+        return;
     }
 
     public static void search() {
+        System.out.println("__________________________________");
         System.out.println("Searching...");
+        System.out.println("__________________________________");
     }
 
     public static void indexFile() {
+        System.out.println("__________________________________");
         System.out.println("Indexing file.");
+        System.out.println("__________________________________");
     }
 }
