@@ -13,28 +13,28 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public static class indexerReducer extends Reducer<Text,IntWritable,Text,IntWritable> {
-  private Text term = new Text();
-  private Text prevTerm = new Text();
-  private LongWritable docID = new LongWritable();
-  private HashMap<Text, LongWritable> postingList;
+    private Text term = new Text();
+    private Text prevTerm = new Text();
+    private LongWritable docID = new LongWritable();
+    private HashMap<Text, LongWritable> postingList;
 
-  public void initialize() {
-    prevTerm = null;
-    postingList = new HashMap<Text, LongWritable>();
-  }
-
-  public void reduce(Pair<Text, LongWritable> key, IntWritable tf, Context context ) throws IOException, InterruptedException {
-    term = key.getKey();
-    docID = key.getValue();
-    if (!term.equals(prevTerm) && prevTerm != null) {
-      context.write(term, postingList);
-      postingList = new HashMap();
+    public void initialize() {
+        prevTerm = null;
+        postingList = new HashMap<Text, LongWritable>();
     }
-    postingList.put(docID, tf);
-    prevTerm = term;
-  }
 
-  public void close() {
-    context.write(term, postingList);
-  }
+    public void reduce(Pair<Text, LongWritable> key, IntWritable tf, Context context ) throws IOException, InterruptedException {
+        term = key.getKey();
+        docID = key.getValue();
+        if (!term.equals(prevTerm) && prevTerm != null) {
+            context.write(term, postingList);
+            postingList = new HashMap();
+        }
+        postingList.put(docID, tf);
+        prevTerm = term;
+    }
+
+    public void close() {
+        context.write(term, postingList);
+    }
 }
