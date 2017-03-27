@@ -50,7 +50,7 @@ public class WordCount {
   public static void main(String[] args) throws Exception {
       inPath = new Path(args[0]);
       outPath = new Path(args[1]);
-      File bookDir = inPath.toFile();
+      File bookDir = new File(inPath.toString());
       File[] contents = bookDir.listFiles();
 
       for (int i=0; i<contents.length; i++) {
