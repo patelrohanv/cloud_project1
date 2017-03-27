@@ -1,8 +1,9 @@
 import java.io.IOException;
 import java.util.StringTokenizer;
+import java.util.HashMap;
+import java.lang.InterruptedException;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
@@ -12,18 +13,18 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
-public static class indexerReducer extends Reducer<Text,IntWritable,Text,IntWritable> {
+public class indexerReducer extends Reducer<Text,IntWritable,Text,HashMap<IntWritable, IntWritable>> {
     private Text term = new Text();
     private Text prevTerm = new Text();
-    private LongWritable docID = new LongWritable();
-    private HashMap<Text, LongWritable> postingList;
+    private IntWritable docID = new IntWritable();
+    private HashMap<IntWritable, IntWritable> postingList;
 
     public void initialize() {
         prevTerm = null;
-        postingList = new HashMap<Text, LongWritable>();
+        postingList = new HashMap<IntWritable, IntWritable>();
     }
 
-    public void reduce(Pair<Text, LongWritable> key, IntWritable tf, Context context ) throws IOException, InterruptedException {
+    public void reduce(indexPair key, IntWritable tf, Context context ) throws IOException, InterruptedException {
         term = key.getKey();
         docID = key.getValue();
         if (!term.equals(prevTerm) && prevTerm != null) {
@@ -34,7 +35,27 @@ public static class indexerReducer extends Reducer<Text,IntWritable,Text,IntWrit
         prevTerm = term;
     }
 
-    public void close() {
+    public void close(Context context) throws IOException, InterruptedException{
         context.write(term, postingList);
+    }
+    //INNER CLASS INDEXPAIR
+    public class indexPair{
+        public Text t;
+        public IntWritable l;
+
+        public indexPair(Text t, IntWritable l){
+            this.t = t;
+            this.l = l;
+        }
+
+        public Text getKey(){
+            return t;
+        }
+
+        public IntWritable getValue(){
+            return l;
+        }
+
+
     }
 }

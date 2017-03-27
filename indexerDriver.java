@@ -10,7 +10,7 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class indexerDriver{
-    public static indexer(Path input, Path output){
+    public static void indexer(Path input, Path output){
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, "inverted index");
         job.setJarByClass(indexerDriver.class);
