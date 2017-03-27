@@ -53,8 +53,8 @@ class indexerReducer extends Reducer<HashMap<Text, LongWritable>,IntWritable,Tex
     public void reduce(HashMap<Text, LongWritable> key, IntWritable tf, Context context ) throws IOException, InterruptedException {
         Set<Map.Entry<Text, LongWritable>> keyRead = key.entrySet();
         Map.Entry<Text, LongWritable>[] entry = (Map.Entry<Text, LongWritable>[])keyRead.toArray();
-        term = entry.getKey();
-        docID = entry.getValue();
+        term = entry[0].getKey();
+        docID = entry[0].getValue();
         if (!term.equals(prevTerm) && prevTerm != null) {
             context.write(term, postingList);
             postingList = new HashMap();
