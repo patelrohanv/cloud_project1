@@ -45,17 +45,31 @@ public class WordCount {
     }
   }
 
+  public static Path inPath;
+  public static Path outPath;
   public static void main(String[] args) throws Exception {
-    Configuration conf = new Configuration();
-    Job job = Job.getInstance(conf, "word count");
-    job.setJarByClass(WordCount.class);
-    job.setMapperClass(TokenizerMapper.class);
-    job.setCombinerClass(IntSumReducer.class);
-    job.setReducerClass(IntSumReducer.class);
-    job.setOutputKeyClass(Text.class);
-    job.setOutputValueClass(IntWritable.class);
-    FileInputFormat.addInputPath(job, new Path(args[0]));
-    FileOutputFormat.setOutputPath(job, new Path(args[1]));
-    System.exit(job.waitForCompletion(true) ? 0 : 1);
+      inPath = new Path(args[0]);
+      outPath = new Path(args[1]);
+      File bookDir = inPath.toFile();
+      File[] contents = bookDir.listFiles();
+
+      for (int i=0; i<contents.length; i++) {
+          Path newInPath = contents[i].toPath();
+          Path newOutPath = new Path(args[1] + "/" + i);
+          runMapReduce(newInPath, newOutPath);
+      }
+  }
+  public static void runMapReduce (Path inP, Path outP) {
+      Configuration conf = new Configuration();
+      Job job = Job.getInstance(conf, "word count");
+      job.setJarByClass(WordCount.class);
+      job.setMapperClass(TokenizerMapper.class);
+      job.setCombinerClass(IntSumReducer.class);
+      job.setReducerClass(IntSumReducer.class);
+      job.setOutputKeyClass(Text.class);
+      job.setOutputValueClass(IntWritable.class);
+      FileInputFormat.addInputPath(job, inP);
+      FileOutputFormat.setOutputPath(job, outP);
+      //System.exit(job.waitForCompletion(true) ? 0 : 1);
   }
 }
