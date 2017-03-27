@@ -59,7 +59,7 @@ public class WordCount {
           runMapReduce(newInPath, newOutPath);
       }
   }
-  public static void runMapReduce (Path inP, Path outP) {
+  public static void runMapReduce (Path inP, Path outP) throws Exception{
       Configuration conf = new Configuration();
       Job job = Job.getInstance(conf, "word count");
       job.setJarByClass(WordCount.class);
