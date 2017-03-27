@@ -15,7 +15,6 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.commons.lang3.tuple.Pair;
 
 
 public class indexerDriver{
@@ -52,7 +51,8 @@ class indexerReducer extends Reducer<HashMap<Text, IntWritable>,IntWritable,Text
     }
 
     public void reduce(HashMap<Text, IntWritable> key, IntWritable tf, Context context ) throws IOException, InterruptedException {
-        Map.Entry<Text, IntWritable> [] entry = key.entrySet();
+        Set<Map.Entry<Text, IntWritable>> keyRead = key.entrySet();
+        Map.Entry<Text, IntWritable> [] entry = keyRead.toArray();
         term = entry.getKey();
         docID = entry.getValue();
         if (!term.equals(prevTerm) && prevTerm != null) {
@@ -67,7 +67,7 @@ class indexerReducer extends Reducer<HashMap<Text, IntWritable>,IntWritable,Text
         context.write(term, postingList);
     }
     //INNER CLASS INDEXPAIR
-    public class indexPair extends Pair<Text, IntWritable>{
+    public class indexPair{
         public Text t;
         public IntWritable l;
 
@@ -120,7 +120,7 @@ class indexerMapper extends Mapper<LongWritable, Text, HashMap<Text, IntWritable
         }
     }
     //INNER CLASS INDEXPAIR
-    public class indexPair extends Pair<Text, IntWritable>{
+    public class indexPair{
         public Text t;
         public IntWritable l;
 
