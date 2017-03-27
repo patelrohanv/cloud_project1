@@ -62,6 +62,56 @@ public class WordCount {
     public static class SecondReducer extends Reducer<Text,IntWritable,Text,IntWritable> {}
 
     public static void main(String[] args) throws Exception {
+        System.out.println("____________________________________________________________________");
+        System.out.println("Welcome to tiny-Google");
+        System.out.println("____________________________________________________________________");
+        int input;
+        Scanner kbd = new Scanner(System.in);
+        if (!indexed()) {
+            while(true) {
+                System.out.println("No index found on disk.\nWould you like to generate one now?\n\t1. Yes\n\t2. No");
+                input = kbd.nextInt();
+                if(input > 2 || input < 1){
+                    System.out.println("Not a valid option. Please try again.\n");
+                }
+                else if (input == 1) {
+                    index();
+                    break;
+                }
+                else {
+                    System.out.println("Ok. Note: No searches will be possible until an index is generated.");
+                    System.out.println("____________________________________________________________________");
+                    break;
+                }
+            }
+        }
+
+        do{
+            System.out.println("Enter an option:\n\t1. Search for a word \n\t2. Add a document \n\t3. Generate Index from Directory\n\t4. Quit");
+            input = kbd.nextInt();
+            if(input > 4 || input < 1){
+                System.out.println("Not a valid option.\nPlease try again.");
+                continue;
+            }
+            if (input==1 && !indexed()) {
+                System.out.println("Search not possible untill index is generated.");
+            }
+            else if (input == 1) {
+                search();
+            }
+            else if (input == 2) {
+                indexFile();
+            }
+            else if (input == 3) {
+                index();
+            }
+        }while(input != 4);
+        System.out.println("____________________________________________________________________");
+        System.out.println("Goodbye!");
+        System.out.println("____________________________________________________________________");
+    }
+
+    public static void mapreduce(Strin[] args){
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, "word count");
         job.setJarByClass(WordCount.class);
