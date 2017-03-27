@@ -31,7 +31,7 @@ public class Client{
             System.out.println("Enter an option:\n\t1. Search for a word \n\t2. Add a document \n\t3. Generate Index from Directory\n\t4. Quit");
             input = kbd.nextInt();
             if(input > 4 || input < 1){
-                System.out.println("Not a valid option");
+                System.out.println("Not a valid option.\nPlease try again.");
                 continue;
             }
             if (input==1 && !indexed()) {
