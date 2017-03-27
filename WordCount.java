@@ -54,7 +54,7 @@ public class WordCount {
       File[] contents = bookDir.listFiles();
 
       for (int i=0; i<contents.length; i++) {
-          Path newInPath = contents[i].toPath();
+          Path newInPath = new Path(contents[i].toString());
           Path newOutPath = new Path(args[1] + "/" + i);
           runMapReduce(newInPath, newOutPath);
       }
