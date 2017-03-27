@@ -5,6 +5,7 @@ import java.lang.InterruptedException;
 import java.lang.ClassNotFoundException;
 import java.math.*;
 
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -14,6 +15,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.commons.lang3.tuple.Pair;
 
 
 public class indexerDriver{
@@ -38,7 +40,7 @@ public class indexerDriver{
 
 
 //REDUCER
-class indexerReducer extends Reducer<Text,IntWritable,Text,HashMap<IntWritable, IntWritable>> {
+class indexerReducer extends Reducer<IndexPair,IntWritable,Text,HashMap<IntWritable, IntWritable>> {
     private Text term = new Text();
     private Text prevTerm = new Text();
     private IntWritable docID = new IntWritable();
@@ -64,7 +66,7 @@ class indexerReducer extends Reducer<Text,IntWritable,Text,HashMap<IntWritable, 
         context.write(term, postingList);
     }
     //INNER CLASS INDEXPAIR
-    public class indexPair{
+    public class indexPair extends Pair<Text, IntWritable>{
         public Text t;
         public IntWritable l;
 
@@ -86,7 +88,7 @@ class indexerReducer extends Reducer<Text,IntWritable,Text,HashMap<IntWritable, 
 }
 
 //MAPPER
-class indexerMapper extends Mapper<IntWritable, Text, Text, IntWritable>{
+class indexerMapper extends Mapper<LongWritable, Text, IndexPair, IntWritable>{
     private IntWritable one = new IntWritable(1);
     private Text term = new Text();
     
@@ -112,11 +114,11 @@ class indexerMapper extends Mapper<IntWritable, Text, Text, IntWritable>{
             IntWritable freq = entry.getValue();
             IntWritable tf = new IntWritable(1 + (int)Math.log(freq.get()));
             indexPair key = new indexPair(term, docID);
-            context.write(key.getKey(), tf);
+            context.write(key, tf);
         }
     }
     //INNER CLASS INDEXPAIR
-    public class indexPair{
+    public class indexPair extends Pair<Text, IntWritable>{
         public Text t;
         public IntWritable l;
 
