@@ -3,9 +3,9 @@ import java.util.Scanner;
 
 public class Client{
     public static void main(String[] args){
-        System.out.println("__________________________________");
+        System.out.println("____________________________________________________________________");
         System.out.println("Welcome to tiny-Google");
-        System.out.println("__________________________________");
+        System.out.println("____________________________________________________________________");
         int input;
         Scanner kbd = new Scanner(System.in);
         if (!indexed()) {
@@ -21,6 +21,7 @@ public class Client{
                 }
                 else {
                     System.out.println("Ok. Note: No searches will be possible until an index is generated.");
+                    System.out.println("____________________________________________________________________");
                     break;
                 }
             }
@@ -46,7 +47,9 @@ public class Client{
                 index();
             }
         }while(input != 4);
+        System.out.println("____________________________________________________________________");
         System.out.println("Goodbye!");
+        System.out.println("____________________________________________________________________");
     }
 
     public static boolean indexed(){
@@ -63,9 +66,9 @@ public class Client{
     }
 
     public static void index(){
-        System.out.println("__________________________________");
+        System.out.println("____________________________________________________________________");
         System.out.println("Creating index from directory.");
-        System.out.println("__________________________________");
+        System.out.println("____________________________________________________________________");
 
         System.out.println("Please select the directory containing the files to be indexed from the following:\t");
         Scanner kbd = new Scanner(System.in);
@@ -75,7 +78,11 @@ public class Client{
         while(true) {
             for (int i = 0; i < contents.length; i++) {
                 File f = contents[i];
-                System.out.println("\t"+i+".\t"+f.getName());
+                System.out.print("\t"+i+".\t"+f.getName());
+                if (f.isDirectory()) {
+                    System.out.print("/");
+                }
+                System.out.println("");
             }
             System.out.println("\t"+(contents.length+1)+".\tCancel");
             int selection = kbd.nextInt();
@@ -84,39 +91,47 @@ public class Client{
             }
             else if (selection == contents.length+1) {
                 System.out.println("Cancelling Indexing Operation.");
+                System.out.println("____________________________________________________________________");
                 return;
             }
             else {
                 File indexDir = contents[selection];
                 if (!contents[selection].isDirectory())
                 {
-                    System.out.println(indexDir.toString() + " is not a directory.\nPlease try again.");
+                    System.out.println(indexDir.getName() + " is not a directory.\nPlease try again.");
                 }
                 else {
-                    System.out.println("Generating index from the files in directory " + indexDir.toString());
-                    /*File directory = new File(args[0]);
-                    File[] contents = directory.listFiles();
+                    System.out.println("Generating index from the files in directory:\t" + indexDir.getName()+"/");
+                    File[] indexContents = indexDir.listFiles();
                     int i = 0;
-                    for ( File f : contents) {
-                        //System.out.println(f.toString());
-                    }*/
+                    for ( File f : indexContents) {
+                        System.out.println("\t"+f.getName());
+                    }
                     break;
                 }
             }
         }
-        System.out.println("__________________________________");
+        System.out.println("____________________________________________________________________");
         return;
     }
 
     public static void search() {
-        System.out.println("__________________________________");
+        System.out.println("____________________________________________________________________");
         System.out.println("Searching...");
-        System.out.println("__________________________________");
+        System.out.println("____________________________________________________________________");
+
+        //TODO Implement search
+
+        System.out.println("____________________________________________________________________");
     }
 
     public static void indexFile() {
-        System.out.println("__________________________________");
+        System.out.println("____________________________________________________________________");
         System.out.println("Indexing file.");
-        System.out.println("__________________________________");
+        System.out.println("____________________________________________________________________");
+
+        //TODO file indexing functionality
+
+        System.out.println("____________________________________________________________________");
     }
 }
