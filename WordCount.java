@@ -57,6 +57,10 @@ public class WordCount {
         }
     }
 
+    public static class SecondMapper extends Mapper<Text, IntWritable, Text, IntWritable>{}
+
+    public static class SecondReducer extends Reducer<Text,IntWritable,Text,IntWritable> {}
+
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, "word count");
