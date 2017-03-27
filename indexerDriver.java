@@ -39,20 +39,20 @@ public class indexerDriver{
 
 
 //REDUCER
-class indexerReducer extends Reducer<HashMap<Text, IntWritable>,IntWritable,Text,HashMap<IntWritable, IntWritable>> {
+class indexerReducer extends Reducer<HashMap<Text, LongWritable>,IntWritable,Text,HashMap<LongWritable, IntWritable>> {
     private Text term = new Text();
     private Text prevTerm = new Text();
-    private IntWritable docID = new IntWritable();
-    private HashMap<IntWritable, IntWritable> postingList;
+    private LongWritable docID = new LongWritable();
+    private HashMap<LongWritable, IntWritable> postingList;
 
     public void initialize() {
         prevTerm = null;
-        postingList = new HashMap<IntWritable, IntWritable>();
+        postingList = new HashMap<LongWritable, IntWritable>();
     }
 
-    public void reduce(HashMap<Text, IntWritable> key, IntWritable tf, Context context ) throws IOException, InterruptedException {
-        Set<Map.Entry<Text, IntWritable>> keyRead = key.entrySet();
-        Map.Entry<Text, IntWritable> [] entry = keyRead.toArray();
+    public void reduce(HashMap<Text, LongWritable> key, IntWritable tf, Context context ) throws IOException, InterruptedException {
+        Set<Map.Entry<Text, LongWritable>> keyRead = key.entrySet();
+        Map.Entry<Text, LongWritable>[] entry = (Map.Entry<Text, LongWritable>[])keyRead.toArray();
         term = entry.getKey();
         docID = entry.getValue();
         if (!term.equals(prevTerm) && prevTerm != null) {
@@ -89,11 +89,11 @@ class indexerReducer extends Reducer<HashMap<Text, IntWritable>,IntWritable,Text
 }
 
 //MAPPER
-class indexerMapper extends Mapper<LongWritable, Text, HashMap<Text, IntWritable>, IntWritable>{
+class indexerMapper extends Mapper<LongWritable, Text, HashMap<Text, LongWritable>, IntWritable>{
     private IntWritable one = new IntWritable(1);
     private Text term = new Text();
 
-    public void map(IntWritable docID, Text value, Context context) throws IOException, InterruptedException {
+    public void map(LongWritable docID, Text value, Context context) throws IOException, InterruptedException {
         HashMap<Text, IntWritable> H = new HashMap<Text, IntWritable>();
         StringTokenizer itr = new StringTokenizer(value.toString());
 
@@ -114,7 +114,7 @@ class indexerMapper extends Mapper<LongWritable, Text, HashMap<Text, IntWritable
             term = entry.getKey();
             IntWritable freq = entry.getValue();
             IntWritable tf = new IntWritable(1 + (int)Math.log(freq.get()));
-            HashMap<Text, IntWritable> key = new HashMap<Text, IntWritable>();
+            HashMap<Text, LongWritable> key = new HashMap<Text, LongWritable>();
             key.put(term, docID);
             context.write(key, tf);
         }
