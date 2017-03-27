@@ -40,7 +40,7 @@ public class indexerDriver{
 
 
 //REDUCER
-class indexerReducer extends Reducer<IndexPair,IntWritable,Text,HashMap<IntWritable, IntWritable>> {
+class indexerReducer extends Reducer<HashMap<Text, IntWritable>,IntWritable,Text,HashMap<IntWritable, IntWritable>> {
     private Text term = new Text();
     private Text prevTerm = new Text();
     private IntWritable docID = new IntWritable();
@@ -51,9 +51,10 @@ class indexerReducer extends Reducer<IndexPair,IntWritable,Text,HashMap<IntWrita
         postingList = new HashMap<IntWritable, IntWritable>();
     }
 
-    public void reduce(indexPair key, IntWritable tf, Context context ) throws IOException, InterruptedException {
-        term = key.getKey();
-        docID = key.getValue();
+    public void reduce(HashMap<Text, IntWritable> key, IntWritable tf, Context context ) throws IOException, InterruptedException {
+        Map.Entry<Text, IntWritable> [] entry = key.entrySet();
+        term = entry.getKey();
+        docID = entry.getValue();
         if (!term.equals(prevTerm) && prevTerm != null) {
             context.write(term, postingList);
             postingList = new HashMap();
@@ -88,10 +89,10 @@ class indexerReducer extends Reducer<IndexPair,IntWritable,Text,HashMap<IntWrita
 }
 
 //MAPPER
-class indexerMapper extends Mapper<LongWritable, Text, IndexPair, IntWritable>{
+class indexerMapper extends Mapper<LongWritable, Text, HashMap<Text, IntWritable>, IntWritable>{
     private IntWritable one = new IntWritable(1);
     private Text term = new Text();
-    
+
     public void map(IntWritable docID, Text value, Context context) throws IOException, InterruptedException {
         HashMap<Text, IntWritable> H = new HashMap<Text, IntWritable>();
         StringTokenizer itr = new StringTokenizer(value.toString());
@@ -113,7 +114,8 @@ class indexerMapper extends Mapper<LongWritable, Text, IndexPair, IntWritable>{
             term = entry.getKey();
             IntWritable freq = entry.getValue();
             IntWritable tf = new IntWritable(1 + (int)Math.log(freq.get()));
-            indexPair key = new indexPair(term, docID);
+            HashMap<Text, IntWritable> key = new HashMap<Text, IntWritable>();
+            key.put(term, docID);
             context.write(key, tf);
         }
     }
