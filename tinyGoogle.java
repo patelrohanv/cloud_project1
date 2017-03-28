@@ -173,24 +173,13 @@ public class tinyGoogle {
 
                 StringTokenizer itr = new StringTokenizer(line);
                 if(itr.countTokens() < 3 ){ continue; }
-                int count = 0;
                 String term = "";
                 String doc = "";
                 int freq = -1;
                 while (itr.hasMoreTokens()) {
-                    String token = itr.nextToken();
-                    if(count == 0){
-                        term = token;
-                        count++;
-                    }
-                    else if(count == 1){
-                        doc = token;
-                        count++;
-                    }
-                    else if (count == 2){
-                        freq = Integer.parseInt(token);
-                        count = 0;
-                    }
+                    term = itr.nextToken();
+                    doc = itr.nextToken();
+                    freq = Integer.parseInt(itr.nextToken());
                 }
                 //System.out.println("Term: " + term + ", Doc: " + doc + ", Freq: " + freq);
                 if(!hashmap.containsKey(term)){
