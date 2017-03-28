@@ -80,7 +80,7 @@ public class tinyGoogle {
             fileName = itr.nextToken();
             fileName = fileName.substring(0, fileName.length()-4);
             fileName = fileName.replaceAll("by", " by").replaceAll("(.)([A-Z])", "$1 $2");
-            String out = fileName + "," + itr.nextToken();
+            String out = fileName + " " + itr.nextToken();
             Text output = new Text(out);
             context.write(key, output);
             /*while (itr.hasMoreTokens()) {
@@ -183,19 +183,35 @@ public class tinyGoogle {
 
     static HashMap<String, LinkedList<indexPair>> hashmap = new HashMap<String, LinkedList<indexPair>>();
     public static void bruteIndex(){
-        String partR = "/index/part-r-00000";
+        String partR = "./index/part-r-00000";
         try{
             //System.out.println("here");
             Scanner f = new Scanner(new File(partR));
             //System.out.println("here1");
             while(f.hasNextLine()){
                 String line = f.nextLine();
-                if(line.charAt(0) == ' '){ continue; }
-                String[] mapOutput = line.split(" ");
-                String term = mapOutput[0]; //key
-                String[] val = mapOutput[1].split(",");
-                String doc = val[0];
-                int freq = Integer.parseInt(val[1]);
+
+                StringTokenizer itr = new StringTokenizer(line);
+                if(itr.countTokens() < 3 ){ continue; }
+                int count = 0;
+                String term = "";
+                String doc = "";
+                int freq = -1;
+                while (itr.hasMoreTokens()) {
+                    String token = itr.nextToken();
+                    if(count == 0){
+                        term = token;
+                        count++;
+                    }
+                    else if(count == 1){
+                        doc = token;
+                        count++;
+                    }
+                    else if (count == 2){
+                        freq = Integer.parseInt(token);
+                        count = 0;
+                    }
+                }
                 System.out.println("Term: " + term + ", Doc: " + doc + ", Freq: " + freq);
                 if(!hashmap.containsKey(term)){
                     hashmap.put(term, new LinkedList<indexPair>());
@@ -313,7 +329,7 @@ public class tinyGoogle {
         wordCount(inPath, outPath);
         Path indexOut = new Path(currDir + "/index/");
         invertedIndex(outPath, indexOut);
-        //bruteIndex();
+        bruteIndex();
         System.out.println("____________________________________________________________________");
         return;
     }
@@ -327,8 +343,8 @@ public class tinyGoogle {
         Scanner in = new Scanner(System.in);
         System.out.print("Please enter a term \n");
         String response = in.next();
-        //LinkedList<indexPair> search = hashmap.get(response);
-        //System.out.println(search.pop().getValue());
+        LinkedList<indexPair> search = hashmap.get(response);
+        System.out.println(search.pop().getValue());
 
         System.out.println("____________________________________________________________________");
     }
