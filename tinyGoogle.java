@@ -52,6 +52,7 @@ public class tinyGoogle {
             return alpha;
         }
     }
+
     public static class frequencyReducer extends Reducer<Text,IntWritable,Text,IntWritable> {
         private IntWritable result = new IntWritable();
 
