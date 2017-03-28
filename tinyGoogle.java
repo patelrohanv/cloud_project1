@@ -131,7 +131,7 @@ public class tinyGoogle {
     }
 
         // BRUTE FORCING IT
-    public static class indexPair{
+    public static class indexPair implements Comparable<indexPair>{
         public String t;
         public int l;
 
@@ -192,7 +192,7 @@ public class tinyGoogle {
                         count = 0;
                     }
                 }
-                System.out.println("Term: " + term + ", Doc: " + doc + ", Freq: " + freq);
+                //System.out.println("Term: " + term + ", Doc: " + doc + ", Freq: " + freq);
                 if(!hashmap.containsKey(term)){
                     hashmap.put(term, new LinkedList<indexPair>());
                     hashmap.get(term).add(new indexPair(doc, freq));
@@ -324,7 +324,11 @@ public class tinyGoogle {
         System.out.print("Please enter a term \n");
         String response = in.next();
         LinkedList<indexPair> search = hashmap.get(response);
-        System.out.println(search.pop().getValue());
+        Collections.sort(search);
+        while(!search.isEmpty()){
+            System.out.println("Document: " + search.getLast().getKey() + " Count: " + search.getLast().getValue());
+            search.removeLast();
+        }
 
         System.out.println("____________________________________________________________________");
     }
