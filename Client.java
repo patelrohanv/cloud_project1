@@ -1,8 +1,23 @@
 import java.io.File;
 import java.util.Scanner;
+import java.io.IOException;
+import java.util.StringTokenizer;
+
+//import org.apache.opennlp.tools.stemmer.PorterStemmer;
+//import org.apache.lucene.analysis.PorterStemmer;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileSplit;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class Client{
-    public static void main(String[] args){
+    public static void main(String[] args) throws Exception{
         System.out.println("____________________________________________________________________");
         System.out.println("Welcome to tiny-Google");
         System.out.println("____________________________________________________________________");
@@ -52,6 +67,51 @@ public class Client{
         System.out.println("____________________________________________________________________");
     }
 
+    private final static IntWritable one = new IntWritable(1);
+    private Text word = new Text();
+    private String token;
+
+    public static class wordCountMapper extends Mapper<Object, Text, Text, IntWritable>{
+
+        private final static IntWritable one = new IntWritable(1);
+        private Text word = new Text();
+        private String token;
+
+        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+            StringTokenizer itr = new StringTokenizer(value.toString());
+            while (itr.hasMoreTokens()) {
+                token = preProcess(itr.nextToken());
+                //token = itr.nextToken();
+                String fileName = ((FileSplit) context.getInputSplit()).getPath().getName();
+                token = token+"^"+fileName;
+                word.set(token);
+                context.write(word, one);
+            }
+        }
+        public String preProcess(String s) {
+            String stemmed, lower, alpha;                       //
+            //PorterStemmer stemmer = new PorterStemmer();        //
+            //stemmed = stemmer.stem(s);                          //perform stemming
+            //lower = stemmed.toLowerCase();                      //convert to lowercase
+            lower = s.toLowerCase();                            //convert to lowercase
+            alpha = lower.replaceAll("[^a-zA-Z]", "");          //retain only alphabet chars
+            return alpha;
+        }
+    }
+
+    public static class wordCountReducer extends Reducer<Text,IntWritable,Text,IntWritable> {
+        private IntWritable result = new IntWritable();
+
+        public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
+            int sum = 0;
+            for (IntWritable val : values) {
+                sum += val.get();
+            }
+            result.set(sum);
+            context.write(key, result);
+        }
+    }
+
     public static boolean indexed(){
         File currDir = new File(".");
         currDir = new File(currDir.getAbsolutePath());
@@ -65,52 +125,33 @@ public class Client{
         return false;
     }
 
-    public static void index(){
+    public static void index()throws Exception{
         System.out.println("____________________________________________________________________");
         System.out.println("Creating index from directory.");
         System.out.println("____________________________________________________________________");
 
-        System.out.println("Please select the directory containing the files to be indexed from the following:\t");
         Scanner kbd = new Scanner(System.in);
-        File currDir = new File(".");
-        currDir = new File(currDir.getAbsolutePath());
-        File[] contents = currDir.listFiles();
-        while(true) {
-            for (int i = 0; i < contents.length; i++) {
-                File f = contents[i];
-                System.out.print("\t"+i+".\t"+f.getName());
-                if (f.isDirectory()) {
-                    System.out.print("/");
-                }
-                System.out.println("");
-            }
-            System.out.println("\t"+(contents.length+1)+".\tCancel");
-            int selection = kbd.nextInt();
-            if (selection < 0 || selection > contents.length+1) {
-                System.out.println("Invalid Selection.\nPlease try again.");
-            }
-            else if (selection == contents.length+1) {
-                System.out.println("Cancelling Indexing Operation.");
-                System.out.println("____________________________________________________________________");
-                return;
-            }
-            else {
-                File indexDir = contents[selection];
-                if (!contents[selection].isDirectory())
-                {
-                    System.out.println(indexDir.getName() + " is not a directory.\nPlease try again.");
-                }
-                else {
-                    System.out.println("Generating index from the files in directory:\t" + indexDir.getName()+"/");
-                    File[] indexContents = indexDir.listFiles();
-                    int i = 0;
-                    for ( File f : indexContents) {
-                        System.out.println("\t"+f.getName());
-                    }
-                    break;
-                }
-            }
-        }
+        System.out.println("Please enter the directory containing the files to be indexed:\t");
+        String inResp = kbd.nextLine();
+        Path inPath = new Path(inResp);
+        System.out.println("Input directory located at:\t"+inPath.toString());
+        System.out.println("Please enter the directory where the output should be saved:\t");
+        String outResp = kbd.nextLine();
+        Path outPath = new Path(outResp);
+        System.out.println("Output directory located at:\t"+outPath.toString());
+
+        Configuration conf = new Configuration();
+        Job job = Job.getInstance(conf, "word count");
+        job.setJarByClass(Client.class);
+        job.setMapperClass(wordCountMapper.class);
+        job.setCombinerClass(wordCountReducer.class);
+        job.setReducerClass(wordCountReducer.class);
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(IntWritable.class);
+        FileInputFormat.addInputPath(job, inPath);
+        FileOutputFormat.setOutputPath(job, outPath);
+        //System.exit(job.waitForCompletion(true) ? 0 : 1);
+
         System.out.println("____________________________________________________________________");
         return;
     }
