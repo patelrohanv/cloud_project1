@@ -201,7 +201,8 @@ public class tinyGoogle {
     */
     public static void main(String[] args) throws Exception {
         System.out.println("____________________________________________________________________");
-        System.out.println("Welcome to tiny-Google");
+        System.out.println("\t\tWelcome to tiny-Google");
+        System.out.println("\tBy Salvatore Avena and Rohan Patel");
         System.out.println("____________________________________________________________________");
         int input;
         Scanner kbd = new Scanner(System.in);
@@ -254,7 +255,8 @@ public class tinyGoogle {
                 continue;
             }
             if (input==1 && !indexed()) {
-                System.out.println("Search not possible untill index is generated.");
+                System.out.println("No index is present.\nPlease create an index before attempting a search.");
+                System.out.println("____________________________________________________________________");
             }
             else if (input == 1) {
                 search();
@@ -309,7 +311,6 @@ public class tinyGoogle {
     }
 
     public static void search() {
-        //TODO Implement search
         Scanner in = new Scanner(System.in);
         System.out.print("Please enter a search query:\t");
         String response = in.nextLine();
