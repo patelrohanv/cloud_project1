@@ -65,9 +65,10 @@ public class tinyGoogle {
     /*
         MAPREDUCE everything into an inverted index
     */
-    public static class indexMapper extends Mapper<Text, IntWritable, Text, IntWritable>{}
+    public static class indexMapper extends Mapper<Text, IntWritable, Text, Text>{}
 
-    public static class indexReducer extends Reducer<Text,IntWritable,Text,IntWritable> {}
+    public static class indexReducer extends Reducer<Text,Text,Text,Text> {}
+
 
     /*
         CALL FREQUENCY GENERATING MAPREDUCE JOB
