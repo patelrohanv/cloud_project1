@@ -78,8 +78,8 @@ public class tinyGoogle {
 
         public void map(Text key, Text value, Context context) throws IOException, InterruptedException {
             StringTokenizer itr = new StringTokenizer(key.toString());
-            while (itr.hasMoreTokens()) {
-                /*String out = "";
+            /*while (itr.hasMoreTokens()) {
+                String out = "";
                 token = itr.nextToken(); //token = term^doc
                 if(token.charAt(0) == '^'){
                     continue;
@@ -90,11 +90,11 @@ public class tinyGoogle {
                 String freq = value.toString();
                 out = fileName + "," + freq;
                 word.set(token);
-                output.set(out);*/
+                output.set(out);
+                context.write(key, value);*/
                 context.write(key, value);
             }
         }
-    }
 
     public static class indexReducer extends Reducer<Text,Text,Text,Text> {
         private Text result = new Text();
@@ -138,7 +138,7 @@ public class tinyGoogle {
         job.setReducerClass(indexReducer.class);
         job.setInputFormatClass(KeyValueTextInputFormat.class);
         job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(IntWritable.class);
+        job.setOutputValueClass(Text.class);
         FileInputFormat.addInputPath(job, inP);
         FileOutputFormat.setOutputPath(job, outP);
         job.waitForCompletion(false);
