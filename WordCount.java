@@ -1,5 +1,7 @@
 import java.io.IOException;
 import java.util.StringTokenizer;
+import java.io.File;
+import java.util.Scanner;
 
 //import org.apache.opennlp.tools.stemmer.PorterStemmer;
 //import org.apache.lucene.analysis.PorterStemmer;
@@ -15,7 +17,9 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class WordCount {
-
+    /*
+        MAPREDUCE every book in input to ("word^filename, freq")
+    */
     public static class TokenizerMapper extends Mapper<Object, Text, Text, IntWritable>{
 
         private final static IntWritable one = new IntWritable(1);
@@ -43,7 +47,6 @@ public class WordCount {
             return alpha;
         }
     }
-
     public static class IntSumReducer extends Reducer<Text,IntWritable,Text,IntWritable> {
         private IntWritable result = new IntWritable();
 
@@ -57,11 +60,17 @@ public class WordCount {
         }
     }
 
+    /*
+        MAPREDUCE everything into an inverted index
+    */
     public static class SecondMapper extends Mapper<Text, IntWritable, Text, IntWritable>{}
 
     public static class SecondReducer extends Reducer<Text,IntWritable,Text,IntWritable> {}
 
-    public static void main(String[] args) throws Exception {
+    /*
+        CALL MAPREDUCE JOBS
+    */
+    public static void mapreduce(String[] args) throws Exception{
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, "word count");
         job.setJarByClass(WordCount.class);
@@ -73,5 +82,99 @@ public class WordCount {
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
         System.exit(job.waitForCompletion(true) ? 0 : 1);
+    }
+    /*
+    START CLIENT
+    */
+    public static void main(String[] args) throws Exception {
+        System.out.println("____________________________________________________________________");
+        System.out.println("Welcome to tiny-Google");
+        System.out.println("____________________________________________________________________");
+        int input;
+        Scanner kbd = new Scanner(System.in);
+        if (!indexed()) {
+            while(true) {
+                System.out.println("No index found on disk.\nWould you like to generate one now?\n\t1. Yes\n\t2. No");
+                input = kbd.nextInt();
+                if(input > 2 || input < 1){
+                    System.out.println("Not a valid option. Please try again.\n");
+                }
+                else if (input == 1) {
+                    index(args);
+                    break;
+                }
+                else {
+                    System.out.println("Ok. Note: No searches will be possible until an index is generated.");
+                    System.out.println("____________________________________________________________________");
+                    break;
+                }
+            }
+        }
+
+        do{
+            System.out.println("Enter an option:\n\t1. Search for a word \n\t2. Add a document \n\t3. Generate Index from Directory\n\t4. Quit");
+            input = kbd.nextInt();
+            if(input > 4 || input < 1){
+                System.out.println("Not a valid option.\nPlease try again.");
+                continue;
+            }
+            if (input==1 && !indexed()) {
+                System.out.println("Search not possible untill index is generated.");
+            }
+            else if (input == 1) {
+                search();
+            }
+            else if (input == 2) {
+                indexFile();
+            }
+            else if (input == 3) {
+                index(args);
+            }
+        }while(input != 4);
+        System.out.println("____________________________________________________________________");
+        System.out.println("Goodbye!");
+        System.out.println("____________________________________________________________________");
+    }
+
+    public static boolean indexed(){
+        File currDir = new File(".");
+        currDir = new File(currDir.getAbsolutePath());
+        File[] contents = currDir.listFiles();
+
+        for (File f :contents) {
+            if (f.toString().equals("WHATEVER WE NAME OUR INDEX")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void index(String[] args) throws Exception{ 
+        System.out.println("____________________________________________________________________");
+        System.out.println("Creating index from directory.");
+        System.out.println("____________________________________________________________________");
+        mapreduce(args);
+        System.out.println("____________________________________________________________________");
+        return;
+    }
+
+    public static void search() {
+        System.out.println("____________________________________________________________________");
+        System.out.println("Searching...");
+        System.out.println("____________________________________________________________________");
+
+        //TODO Implement search
+
+        System.out.println("____________________________________________________________________");
+    }
+
+    public static void indexFile() {
+        System.out.println("____________________________________________________________________");
+        System.out.println("Indexing file.");
+        System.out.println("____________________________________________________________________");
+
+        //TODO file indexing functionality
+
+        System.out.println("____________________________________________________________________");
     }
 }
