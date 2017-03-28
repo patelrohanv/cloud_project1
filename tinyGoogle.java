@@ -172,19 +172,14 @@ public class tinyGoogle {
 
                 StringTokenizer itr = new StringTokenizer(line);
                 if(itr.countTokens() < 3 ){ continue; }
+                int count = 0;
                 String term = "";
                 String doc = "";
                 int freq = -1;
-
                 term = itr.nextToken();
                 doc = itr.nextToken().replaceAll("of", " of").replaceAll("by", " by").replaceAll("(.)([A-Z])", "$1 $2");
                 freq = Integer.parseInt(itr.nextToken());
 
-                while (itr.hasMoreTokens()) {
-                    term = itr.nextToken();
-                    doc = itr.nextToken();
-                    freq = Integer.parseInt(itr.nextToken());
-                }
                 //System.out.println("Term: " + term + ", Doc: " + doc + ", Freq: " + freq);
                 if(!hashmap.containsKey(term)){
                     hashmap.put(term, new LinkedList<indexPair>());
@@ -323,14 +318,26 @@ public class tinyGoogle {
         System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         String split[] = response.split(" ");
         for(int i = 0; i <split.length; i++) {
-            String term = split[i].toLowerCase();;
-            LinkedList<indexPair> search = (LinkedList<indexPair>)hashmap.get(term).clone();
-            Collections.sort(search);
-            System.out.println("--------------------------------------------------------------------");
-            System.out.println("The term \""+term+"\" is found in:");
-            while(!search.isEmpty()){
-                indexPair result = search.removeLast();
-                System.out.println("\t" + result.getKey() + "\n\t\tCount: " + result.getValue());
+            String term = split[i].toLowerCase();
+            boolean x = true;
+            LinkedList<indexPair> search = new LinkedList<indexPair>();
+            try {
+                search = (LinkedList<indexPair>)hashmap.get(term).clone();
+            }
+            catch(Exception e){
+                System.out.println("--------------------------------------------------------------------");
+                System.out.println("Term \""+term+"\" could not be found in any document.");
+                x = false;
+            }
+
+            if(x) {
+                Collections.sort(search);
+                System.out.println("--------------------------------------------------------------------");
+                System.out.println("The term \""+term+"\" is found in:");
+                while(!search.isEmpty()){
+                    indexPair result = search.removeLast();
+                    System.out.println("\t" + result.getKey() + "\n\t\tNumber of Appearances: " + result.getValue());
+                }
             }
         }
         System.out.println("--------------------------------------------------------------------");
@@ -358,6 +365,7 @@ public class tinyGoogle {
             Path indexUpdate = new Path(currDir + "/indexUpdate");
             invertedIndex(outPath, indexUpdate);
             bruteIndex(indexUpdate);
+            removeDirectory(new File(indexUpdate.toString()));
         }
         catch(Exception e){
             System.err.print(e + "\n");
