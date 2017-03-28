@@ -73,7 +73,7 @@ public class tiny-Google {
     public static void wordCount(String[] args) throws Exception{
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, "word count");
-        job.setJarByClass(WordCount.class);
+        job.setJarByClass(tiny-Google.class);
         job.setMapperClass(frequencyMapper.class);
         job.setCombinerClass(frequencyReducer.class);
         job.setReducerClass(frequencyReducer.class);
