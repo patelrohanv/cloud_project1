@@ -75,7 +75,6 @@ public class tinyGoogle {
             String fileName = "";
             fileName = itr.nextToken();
             fileName = fileName.substring(0, fileName.length()-4);
-            //fileName = fileName.replaceAll("by", " by").replaceAll("(.)([A-Z])", "$1 $2");
             String out = fileName + " " + itr.nextToken();
             Text output = new Text(out);
             context.write(key, output);
@@ -162,8 +161,8 @@ public class tinyGoogle {
     }
 
     static HashMap<String, LinkedList<indexPair>> hashmap = new HashMap<String, LinkedList<indexPair>>();
-    public static void bruteIndex(){
-        String partR = "./index/part-r-00000";
+    public static void bruteIndex(Path iPath){
+        String partR = iPath.toString()+"/part-r-00000";
         try{
             //System.out.println("here");
             Scanner f = new Scanner(new File(partR));
@@ -177,21 +176,10 @@ public class tinyGoogle {
                 String term = "";
                 String doc = "";
                 int freq = -1;
-                while (itr.hasMoreTokens()) {
-                    String token = itr.nextToken();
-                    if(count == 0){
-                        term = token;
-                        count++;
-                    }
-                    else if(count == 1){
-                        doc = token;
-                        count++;
-                    }
-                    else if (count == 2){
-                        freq = Integer.parseInt(token);
-                        count = 0;
-                    }
-                }
+                term = itr.nextToken();
+                doc = itr.nextToken().replaceAll("of", " of").replaceAll("by", " by").replaceAll("(.)([A-Z])", "$1 $2");
+                freq = Integer.parseInt(itr.nextToken());
+
                 //System.out.println("Term: " + term + ", Doc: " + doc + ", Freq: " + freq);
                 if(!hashmap.containsKey(term)){
                     hashmap.put(term, new LinkedList<indexPair>());
@@ -250,7 +238,8 @@ public class tinyGoogle {
                 }
                 else {
                     System.out.println("Ok, existing index will be used.");
-                    bruteIndex();
+                    Path indexOut = new Path(currDir + "/index");
+                    bruteIndex(indexOut);
                     System.out.println("____________________________________________________________________");
                     break;
                 }
@@ -258,7 +247,7 @@ public class tinyGoogle {
         }
 
         do{
-            System.out.println("Enter an option:\n\t1. Search for a word \n\t2. Add a document \n\t3. Generate Index from Directory\n\t4. Quit");
+            System.out.println("Enter an option:\n\t1. Perform a search query \n\t2. Add a document \n\t3. Generate Index from Directory\n\t4. Quit");
             input = kbd.nextInt();
             if(input > 4 || input < 1){
                 System.out.println("Not a valid option.\nPlease try again.");
@@ -302,34 +291,44 @@ public class tinyGoogle {
         Path inPath = new Path (response);
         System.out.print("Please enter output path:\t");
         response = in.nextLine();
+        Path outPath = new Path (response);
         System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         System.out.println("\tPlease wait while the index is generated ... ");
         System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-        Path outPath = new Path (response);
-        wordCount(inPath, outPath);
-        Path indexOut = new Path(currDir + "/index/");
-        invertedIndex(outPath, indexOut);
-        bruteIndex();
+        try {
+            wordCount(inPath, outPath);
+            Path indexOut = new Path(currDir + "/index");
+            invertedIndex(outPath, indexOut);
+            bruteIndex(indexOut);
+        }
+        catch(Exception e){
+            System.err.print(e + "\n");
+        }
         System.out.println("____________________________________________________________________");
         return;
     }
 
     public static void search() {
-        System.out.println("____________________________________________________________________");
-        System.out.println("Searching...");
-        System.out.println("____________________________________________________________________");
-
         //TODO Implement search
         Scanner in = new Scanner(System.in);
-        System.out.print("Please enter a term \n");
-        String response = in.next();
-        LinkedList<indexPair> search = hashmap.get(response);
-        Collections.sort(search);
-        while(!search.isEmpty()){
-            System.out.println("Document: " + search.getLast().getKey() + " Count: " + search.getLast().getValue());
-            search.removeLast();
+        System.out.print("Please enter a search query:\t");
+        String response = in.nextLine();
+        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        System.out.println("\tPlease wait while the search is completed ... ");
+        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        String split[] = response.split(" ");
+        for(int i = 0; i <split.length; i++) {
+            String term = split[i].toLowerCase();;
+            LinkedList<indexPair> search = (LinkedList<indexPair>)hashmap.get(term).clone();
+            Collections.sort(search);
+            System.out.println("--------------------------------------------------------------------");
+            System.out.println("The term \""+term+"\" is found in:");
+            while(!search.isEmpty()){
+                indexPair result = search.removeLast();
+                System.out.println("\t" + result.getKey() + "\n\t\tCount: " + result.getValue());
+            }
         }
-
+        System.out.println("--------------------------------------------------------------------");
         System.out.println("____________________________________________________________________");
     }
 
@@ -339,7 +338,25 @@ public class tinyGoogle {
         System.out.println("____________________________________________________________________");
 
         //TODO file indexing functionality
-
+        Scanner in = new Scanner(System.in);
+        System.out.print("Please enter the path of the file to be indexed:\t");
+        String response = in.nextLine();
+        Path inPath = new Path (response);
+        System.out.print("Please enter output path:\t");
+        response = in.nextLine();
+        Path outPath = new Path (response);
+        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        System.out.println("\tPlease wait while the index is updated ... ");
+        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        try {
+            wordCount(inPath, outPath);
+            Path indexUpdate = new Path(currDir + "/indexUpdate");
+            invertedIndex(outPath, indexUpdate);
+            bruteIndex(indexUpdate);
+        }
+        catch(Exception e){
+            System.err.print(e + "\n");
+        }
         System.out.println("____________________________________________________________________");
     }
 
