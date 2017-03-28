@@ -65,10 +65,40 @@ public class tinyGoogle {
     /*
         MAPREDUCE everything into an inverted index
     */
-    public static class indexMapper extends Mapper<Text, IntWritable, Text, Text>{}
+    public static class indexMapper extends Mapper<Text, IntWritable, Text, Text>{
+        private final static IntWritable one = new IntWritable(1);
+        private Text word = new Text();
+        private Text output = new Text();
+        private String token;
 
-    public static class indexReducer extends Reducer<Text,Text,Text,Text> {}
+        public void map(Text key, IntWritable value, Context context) throws IOException, InterruptedException {
+            StringTokenizer itr = new StringTokenizer(key.toString());
+            while (itr.hasMoreTokens()) {
+                String out = "";
+                token = itr.nextToken(); //token = term^doc
+                String[] tokArr = token.split("^");
+                token = tokArr[0]; //token = term
+                String fileName = tokArr[1];
+                String freq = value.toString();
+                out = fileName + "," + freq;
+                word.set(token);
+                output.set(out);
+                context.write(word, output);
+            }
+        }
+    }
 
+    public static class indexReducer extends Reducer<Text,Text,Text,Text> {
+        private Text result = new Text();
+
+        public void reduce(Text key, Text value, Context context) throws IOException, InterruptedException {
+            String sum = "";
+            sum += value.toString();
+            sum += "/";
+            result.set(sum);
+            context.write(key, result);
+        }
+    }
 
     /*
         CALL FREQUENCY GENERATING MAPREDUCE JOB
