@@ -19,8 +19,11 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class tinyGoogle {
+    public static File file = new File(".");
+    public static String currDir = file.getAbsolutePath();
+
     /*
-        MAPREDUCE every book in input to ("word^filename, freq")
+    MAPREDUCE every book in input to ("word^filename, freq")
     */
     public static class frequencyMapper extends Mapper<Object, Text, Text, IntWritable>{
 
@@ -63,7 +66,7 @@ public class tinyGoogle {
     }
 
     /*
-        MAPREDUCE everything into an inverted index
+    MAPREDUCE everything into an inverted index
     */
     public static class indexMapper extends Mapper<Text, IntWritable, Text, Text>{
         private final static IntWritable one = new IntWritable(1);
@@ -101,9 +104,9 @@ public class tinyGoogle {
     }
 
     /*
-        CALL FREQUENCY GENERATING MAPREDUCE JOB
+    CALL FREQUENCY GENERATING MAPREDUCE JOB
     */
-    public static void wordCount(String[] args) throws Exception{
+    public static void wordCount(Path inP, Path outP) throws Exception{
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, "word count");
         job.setJarByClass(tinyGoogle.class);
@@ -112,15 +115,15 @@ public class tinyGoogle {
         job.setReducerClass(frequencyReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
-        FileInputFormat.addInputPath(job, new Path(args[0]));
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+        FileInputFormat.addInputPath(job, inP);
+        FileOutputFormat.setOutputPath(job, outP);
         job.waitForCompletion(false);
     }
 
     /*
-        CALL INVERTED INDEX GENERATING MAPREDUCE JOB
+    CALL INVERTED INDEX GENERATING MAPREDUCE JOB
     */
-    public static void invertedIndex(String[] args) throws Exception{
+    public static void invertedIndex(Path inP, Path outP) throws Exception{
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, "word count");
         job.setJarByClass(tinyGoogle.class);
@@ -129,8 +132,8 @@ public class tinyGoogle {
         job.setReducerClass(frequencyReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
-        FileInputFormat.addInputPath(job, new Path(args[0]));
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+        FileInputFormat.addInputPath(job, inP);
+        FileOutputFormat.setOutputPath(job, outP);
         job.waitForCompletion(false);
     }
     /*
@@ -168,6 +171,7 @@ public class tinyGoogle {
                     System.out.println("Not a valid option. Please try again.\n");
                 }
                 else if (input == 2) {
+                    removeDirectory(new File(currDir + "/index"));
                     index(args);
                     break;
                 }
@@ -205,12 +209,9 @@ public class tinyGoogle {
     }
 
     public static boolean indexed(){
-        File currDir = new File(".");
-        currDir = new File(currDir.getAbsolutePath());
-        File[] contents = currDir.listFiles();
-
+        File[] contents = new File(currDir).listFiles();
         for (File f :contents) {
-            if (f.toString().equals("WHATEVER WE NAME OUR INDEX")) {
+            if (f.toString().equals(currDir+"/index")) {
                 return true;
             }
         }
@@ -221,7 +222,16 @@ public class tinyGoogle {
         System.out.println("____________________________________________________________________");
         System.out.println("Creating index from directory.");
         System.out.println("____________________________________________________________________");
-        wordCount(args);
+        Scanner in = new Scanner(System.in);
+        System.out.print("Please enter input path:");
+        String response = in.nextLine();
+        Path inPath = new Path (response);
+        System.out.print("Please enter output path:");
+        response = in.nextLine();
+        Path outPath = new Path (response);
+        wordCount(inPath, outPath);
+        Path indexOut = new Path(currDir + "/index/");
+        //invertedIndex(outPath, indexOut);
         System.out.println("____________________________________________________________________");
         return;
     }
@@ -244,5 +254,40 @@ public class tinyGoogle {
         //TODO file indexing functionality
 
         System.out.println("____________________________________________________________________");
+    }
+
+    public static boolean removeDirectory(File directory) {
+
+        if (directory == null)
+        return false;
+        if (!directory.exists())
+        return true;
+        if (!directory.isDirectory())
+        return false;
+
+        String[] list = directory.list();
+
+        // Some JVMs return null for File.list() when the
+        // directory is empty.
+        if (list != null) {
+            for (int i = 0; i < list.length; i++) {
+                File entry = new File(directory, list[i]);
+
+                //        System.out.println("\tremoving entry " + entry);
+
+                if (entry.isDirectory())
+                {
+                    if (!removeDirectory(entry))
+                    return false;
+                }
+                else
+                {
+                    if (!entry.delete())
+                    return false;
+                }
+            }
+        }
+
+        return directory.delete();
     }
 }
