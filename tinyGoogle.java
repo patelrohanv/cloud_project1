@@ -78,33 +78,31 @@ public class tinyGoogle {
 
         public void map(Text key, Text value, Context context) throws IOException, InterruptedException {
             StringTokenizer itr = new StringTokenizer(key.toString());
-            /*while (itr.hasMoreTokens()) {
+            while (itr.hasMoreTokens()) {
                 String out = "";
-                token = itr.nextToken(); //token = term^doc
-                if(token.charAt(0) == '^'){
-                    continue;
-                }
-                String[] tokArr = token.split("^");
-                token = tokArr[0]; //token = term
-                String fileName = tokArr[1];
-                String freq = value.toString();
+                token = itr.nextToken(); //token = term
+                //value = doc freq
+                String val = value.toString();
+                String[] valArr = val.split(" ");
+                String fileName = valArr[0];
+                String freq = valArr[1];
                 out = fileName + "," + freq;
-                word.set(token);
+                word.set(key);
                 output.set(out);
-                context.write(key, value);*/
-                context.write(key, value);
+                context.write(word, output);
             }
         }
+    }
 
     public static class indexReducer extends Reducer<Text,Text,Text,Text> {
         private Text result = new Text();
 
         public void reduce(Text key, Text value, Context context) throws IOException, InterruptedException {
-            /*String sum = "";
+            String sum = "";
             sum += value.toString();
             sum += "/";
-            result.set(sum);*/
-            context.write(key, value);
+            result.set(sum);
+            context.write(key, result);
         }
     }
 
@@ -138,7 +136,7 @@ public class tinyGoogle {
         job.setReducerClass(indexReducer.class);
         job.setInputFormatClass(KeyValueTextInputFormat.class);
         job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(Text.class);
+        job.setOutputValueClass(IntWritable.class);
         FileInputFormat.addInputPath(job, inP);
         FileOutputFormat.setOutputPath(job, outP);
         job.waitForCompletion(false);
