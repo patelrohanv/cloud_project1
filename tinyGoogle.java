@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Scanner;
 import java.lang.*;
 import java.io.*;
+import java.util.*;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -93,7 +94,7 @@ public class tinyGoogle {
                 //System.out.println(fileName);
                 String freq = valArr[1];
                 //System.out.println(freq);
-                out = fileName + "," + freq;
+                out = fileName + freq;
                 word.set(key);
                 output.set(out);
                 context.write(word, output);
@@ -148,6 +149,69 @@ public class tinyGoogle {
         FileOutputFormat.setOutputPath(job, outP);
         job.waitForCompletion(false);
     }
+
+        // BRUTE FORCING IT
+    public static class indexPair{
+        public String t;
+        public int l;
+
+        public indexPair(String t, int l){
+            this.t = t;
+            this.l = l;
+        }
+
+        public String getKey(){
+            return t;
+        }
+
+        public int getValue(){
+            return l;
+        }
+
+        public int compareTo(indexPair p){
+            if(p.getValue() > l){
+                return -1;
+            }
+            else if(p.getValue() < l){
+                return 1;
+            }
+            else{
+                return 0;
+            }
+        }
+    }
+
+    static HashMap<String, LinkedList<indexPair>> hashmap = new HashMap<String, LinkedList<indexPair>>();
+    public static void bruteIndex(){
+        String partR = "/index/part-r-00000";
+        try{
+            //System.out.println("here");
+            Scanner f = new Scanner(new File(partR));
+            //System.out.println("here1");
+            while(f.hasNextLine()){
+                String line = f.nextLine();
+                if(line.charAt(0) == ' '){ continue; }
+                String[] mapOutput = line.split(" ");
+                String term = mapOutput[0]; //key
+                String[] val = mapOutput[1].split(",");
+                String doc = val[0];
+                int freq = Integer.parseInt(val[1]);
+                System.out.println("Term: " + term + ", Doc: " + doc + ", Freq: " + freq);
+                if(!hashmap.containsKey(term)){
+                    hashmap.put(term, new LinkedList<indexPair>());
+                    hashmap.get(term).add(new indexPair(doc, freq));
+                }
+                else{
+                    hashmap.get(term).add(new indexPair(doc, freq));
+                }
+            }
+        }
+        catch(Exception e){
+            System.err.print(e + "\n");
+        }
+
+    }
+    //END BRUTE FORCING IT
     /*
     START CLIENT
     */
@@ -190,6 +254,7 @@ public class tinyGoogle {
                 }
                 else {
                     System.out.println("Ok, existing index will be used.");
+                    bruteIndex();
                     System.out.println("____________________________________________________________________");
                     break;
                 }
@@ -248,6 +313,7 @@ public class tinyGoogle {
         wordCount(inPath, outPath);
         Path indexOut = new Path(currDir + "/index/");
         invertedIndex(outPath, indexOut);
+        //bruteIndex();
         System.out.println("____________________________________________________________________");
         return;
     }
@@ -258,6 +324,11 @@ public class tinyGoogle {
         System.out.println("____________________________________________________________________");
 
         //TODO Implement search
+        Scanner in = new Scanner(System.in);
+        System.out.print("Please enter a term \n");
+        String response = in.next();
+        //LinkedList<indexPair> search = hashmap.get(response);
+        //System.out.println(search.pop().getValue());
 
         System.out.println("____________________________________________________________________");
     }
