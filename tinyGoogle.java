@@ -70,10 +70,6 @@ public class tinyGoogle {
     MAPREDUCE everything into an inverted index
     */
     public static class indexMapper extends Mapper<Text, Text, Text, Text>{
-        /*private final static IntWritable one = new IntWritable(1);
-        private Text word = new Text();
-        private Text output = new Text();
-        private String token;*/
         public void map(Text key, Text value, Context context) throws IOException, InterruptedException {
             StringTokenizer itr = new StringTokenizer(value.toString());
             String fileName = "";
@@ -83,22 +79,6 @@ public class tinyGoogle {
             String out = fileName + " " + itr.nextToken();
             Text output = new Text(out);
             context.write(key, output);
-            /*while (itr.hasMoreTokens()) {
-                String out = "";
-                token = itr.nextToken(); //token = term
-                //value = doc freq
-                String val = value.toString();
-                //System.out.println(val);
-                String[] valArr = val.split(".txt");
-                String fileName = valArr[0];
-                //System.out.println(fileName);
-                String freq = valArr[1];
-                //System.out.println(freq);
-                out = fileName + freq;
-                word.set(key);
-                output.set(out);
-                context.write(word, output);
-            }*/
         }
     }
 
