@@ -5,8 +5,6 @@ import java.util.Scanner;
 import java.lang.*;
 import java.io.*;
 
-//import org.apache.opennlp.tools.stemmer.PorterStemmer;
-//import org.apache.lucene.analysis.PorterStemmer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -71,14 +69,20 @@ public class tinyGoogle {
     MAPREDUCE everything into an inverted index
     */
     public static class indexMapper extends Mapper<Text, Text, Text, Text>{
-        private final static IntWritable one = new IntWritable(1);
+        /*private final static IntWritable one = new IntWritable(1);
         private Text word = new Text();
         private Text output = new Text();
-        private String token;
-
+        private String token;*/
         public void map(Text key, Text value, Context context) throws IOException, InterruptedException {
             StringTokenizer itr = new StringTokenizer(value.toString());
-            while (itr.hasMoreTokens()) {
+            String fileName = "";
+            fileName = itr.nextToken();
+            fileName = fileName.substring(0, fileName.length()-4);
+            fileName = fileName.replaceAll("by", " by").replaceAll("(.)([A-Z])", "$1 $2");
+            String out = fileName + "," + itr.nextToken();
+            Text output = new Text(out);
+            context.write(key, output);
+            /*while (itr.hasMoreTokens()) {
                 String out = "";
                 token = itr.nextToken(); //token = term
                 //value = doc freq
@@ -93,7 +97,7 @@ public class tinyGoogle {
                 word.set(key);
                 output.set(out);
                 context.write(word, output);
-            }
+            }*/
         }
     }
 
@@ -232,11 +236,14 @@ public class tinyGoogle {
         System.out.println("Creating New Index.");
         System.out.println("____________________________________________________________________");
         Scanner in = new Scanner(System.in);
-        System.out.print("Please enter input path:");
+        System.out.print("Please enter input path:\t");
         String response = in.nextLine();
         Path inPath = new Path (response);
-        System.out.print("Please enter output path:");
+        System.out.print("Please enter output path:\t");
         response = in.nextLine();
+        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        System.out.println("\tPlease wait while the index is generated ... ");
+        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         Path outPath = new Path (response);
         wordCount(inPath, outPath);
         Path indexOut = new Path(currDir + "/index/");
@@ -266,23 +273,18 @@ public class tinyGoogle {
     }
 
     public static boolean removeDirectory(File directory) {
-
         if (directory == null)
-        return false;
+            return false;
         if (!directory.exists())
-        return true;
+            return true;
         if (!directory.isDirectory())
-        return false;
+            return false;
 
         String[] list = directory.list();
 
-        // Some JVMs return null for File.list() when the
-        // directory is empty.
         if (list != null) {
             for (int i = 0; i < list.length; i++) {
                 File entry = new File(directory, list[i]);
-
-                //        System.out.println("\tremoving entry " + entry);
 
                 if (entry.isDirectory())
                 {
@@ -296,7 +298,6 @@ public class tinyGoogle {
                 }
             }
         }
-
         return directory.delete();
     }
 
