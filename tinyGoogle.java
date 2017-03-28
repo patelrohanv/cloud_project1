@@ -77,15 +77,18 @@ public class tinyGoogle {
         private String token;
 
         public void map(Text key, Text value, Context context) throws IOException, InterruptedException {
-            StringTokenizer itr = new StringTokenizer(key.toString());
+            StringTokenizer itr = new StringTokenizer(value.toString());
             while (itr.hasMoreTokens()) {
                 String out = "";
                 token = itr.nextToken(); //token = term
                 //value = doc freq
                 String val = value.toString();
-                String[] valArr = val.split(" ");
+                //System.out.println(val);
+                String[] valArr = val.split(".txt");
                 String fileName = valArr[0];
+                //System.out.println(fileName);
                 String freq = valArr[1];
+                //System.out.println(freq);
                 out = fileName + "," + freq;
                 word.set(key);
                 output.set(out);
@@ -136,7 +139,7 @@ public class tinyGoogle {
         job.setReducerClass(indexReducer.class);
         job.setInputFormatClass(KeyValueTextInputFormat.class);
         job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(IntWritable.class);
+        job.setOutputValueClass(Text.class);
         FileInputFormat.addInputPath(job, inP);
         FileOutputFormat.setOutputPath(job, outP);
         job.waitForCompletion(false);
