@@ -68,7 +68,7 @@ public class tinyGoogle {
     public static class indexReducer extends Reducer<Text,IntWritable,Text,IntWritable> {}
 
     /*
-        CALL MAPREDUCE JOBS
+        CALL FREQUENCY GENERATING MAPREDUCE JOB
     */
     public static void wordCount(String[] args) throws Exception{
         Configuration conf = new Configuration();
@@ -81,7 +81,24 @@ public class tinyGoogle {
         job.setOutputValueClass(IntWritable.class);
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
-        System.exit(job.waitForCompletion(true) ? 0 : 1);
+        job.waitForCompletion(true);
+    }
+
+    /*
+        CALL INVERTED INDEX GENERATING MAPREDUCE JOB
+    */
+    public static void invertedIndex(String[] args) throws Exception{
+        Configuration conf = new Configuration();
+        Job job = Job.getInstance(conf, "word count");
+        job.setJarByClass(tinyGoogle.class);
+        job.setMapperClass(frequencyMapper.class);
+        job.setCombinerClass(frequencyReducer.class);
+        job.setReducerClass(frequencyReducer.class);
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(IntWritable.class);
+        FileInputFormat.addInputPath(job, new Path(args[0]));
+        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+        job.waitForCompletion(true);
     }
     /*
     START CLIENT
