@@ -79,7 +79,7 @@ public class tinyGoogle {
         public void map(Text key, Text value, Context context) throws IOException, InterruptedException {
             StringTokenizer itr = new StringTokenizer(key.toString());
             while (itr.hasMoreTokens()) {
-                String out = "";
+                /*String out = "";
                 token = itr.nextToken(); //token = term^doc
                 if(token.charAt(0) == '^'){
                     continue;
@@ -90,8 +90,8 @@ public class tinyGoogle {
                 String freq = value.toString();
                 out = fileName + "," + freq;
                 word.set(token);
-                output.set(out);
-                context.write(word, output);
+                output.set(out);*/
+                context.write(key, value);
             }
         }
     }
@@ -100,11 +100,11 @@ public class tinyGoogle {
         private Text result = new Text();
 
         public void reduce(Text key, Text value, Context context) throws IOException, InterruptedException {
-            String sum = "";
+            /*String sum = "";
             sum += value.toString();
             sum += "/";
-            result.set(sum);
-            context.write(key, result);
+            result.set(sum);*/
+            context.write(key, value);
         }
     }
 
@@ -133,9 +133,9 @@ public class tinyGoogle {
         conf.set("mapreduce.input.keyvaluelinerecordreader.key.value.separator", "^");
         Job job = Job.getInstance(conf, "word count");
         job.setJarByClass(tinyGoogle.class);
-        job.setMapperClass(frequencyMapper.class);
-        job.setCombinerClass(frequencyReducer.class);
-        job.setReducerClass(frequencyReducer.class);
+        job.setMapperClass(indexMapper.class);
+        job.setCombinerClass(indexReducer.class);
+        job.setReducerClass(indexReducer.class);
         job.setInputFormatClass(KeyValueTextInputFormat.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
