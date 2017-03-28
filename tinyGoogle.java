@@ -16,7 +16,7 @@ import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
-public class tiny-Google {
+public class tinyGoogle {
     /*
         MAPREDUCE every book in input to ("word^filename, freq")
     */
@@ -73,7 +73,7 @@ public class tiny-Google {
     public static void wordCount(String[] args) throws Exception{
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, "word count");
-        job.setJarByClass(tiny-Google.class);
+        job.setJarByClass(tinyGoogle.class);
         job.setMapperClass(frequencyMapper.class);
         job.setCombinerClass(frequencyReducer.class);
         job.setReducerClass(frequencyReducer.class);
