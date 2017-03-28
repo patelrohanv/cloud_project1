@@ -17,6 +17,7 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
 
 public class tinyGoogle {
     public static File file = new File(".");
@@ -134,6 +135,7 @@ public class tinyGoogle {
         job.setMapperClass(frequencyMapper.class);
         job.setCombinerClass(frequencyReducer.class);
         job.setReducerClass(frequencyReducer.class);
+        job.setInputFormatClass(KeyValueTextInputFormat.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
         FileInputFormat.addInputPath(job, inP);
@@ -236,7 +238,7 @@ public class tinyGoogle {
         Path outPath = new Path (response);
         wordCount(inPath, outPath);
         Path indexOut = new Path(currDir + "/index/");
-        //invertedIndex(outPath, indexOut);
+        invertedIndex(outPath, indexOut);
         System.out.println("____________________________________________________________________");
         return;
     }
@@ -295,4 +297,5 @@ public class tinyGoogle {
 
         return directory.delete();
     }
+
 }
