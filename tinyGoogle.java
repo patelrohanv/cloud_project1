@@ -70,13 +70,13 @@ public class tinyGoogle {
     /*
     MAPREDUCE everything into an inverted index
     */
-    public static class indexMapper extends Mapper<Object, Text, Text, Text>{
+    public static class indexMapper extends Mapper<Text, Text, Text, Text>{
         private final static IntWritable one = new IntWritable(1);
         private Text word = new Text();
         private Text output = new Text();
         private String token;
 
-        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+        public void map(Text key, Text value, Context context) throws IOException, InterruptedException {
             StringTokenizer itr = new StringTokenizer(key.toString());
             while (itr.hasMoreTokens()) {
                 String out = "";
@@ -130,6 +130,7 @@ public class tinyGoogle {
     */
     public static void invertedIndex(Path inP, Path outP) throws Exception{
         Configuration conf = new Configuration();
+        conf.set("mapreduce.input.keyvaluelinerecordreader.key.value.separator", "^");
         Job job = Job.getInstance(conf, "word count");
         job.setJarByClass(tinyGoogle.class);
         job.setMapperClass(frequencyMapper.class);
