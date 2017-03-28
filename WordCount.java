@@ -1,5 +1,7 @@
 import java.io.IOException;
 import java.util.StringTokenizer;
+import java.io.File;
+import java.util.Scanner;
 
 //import org.apache.opennlp.tools.stemmer.PorterStemmer;
 //import org.apache.lucene.analysis.PorterStemmer;
@@ -15,7 +17,9 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class WordCount {
-
+    /*
+        MAPREDUCE every book in input to ("word^filename, freq")
+    */
     public static class TokenizerMapper extends Mapper<Object, Text, Text, IntWritable>{
 
         private final static IntWritable one = new IntWritable(1);
@@ -43,7 +47,6 @@ public class WordCount {
             return alpha;
         }
     }
-
     public static class IntSumReducer extends Reducer<Text,IntWritable,Text,IntWritable> {
         private IntWritable result = new IntWritable();
 
@@ -57,10 +60,32 @@ public class WordCount {
         }
     }
 
+    /*
+        MAPREDUCE everything into an inverted index
+    */
     public static class SecondMapper extends Mapper<Text, IntWritable, Text, IntWritable>{}
 
     public static class SecondReducer extends Reducer<Text,IntWritable,Text,IntWritable> {}
 
+    /*
+        CALL MAPREDUCE JOBS
+    */
+    public static void mapreduce(String[] args) throws Exception{
+        Configuration conf = new Configuration();
+        Job job = Job.getInstance(conf, "word count");
+        job.setJarByClass(WordCount.class);
+        job.setMapperClass(TokenizerMapper.class);
+        job.setCombinerClass(IntSumReducer.class);
+        job.setReducerClass(IntSumReducer.class);
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(IntWritable.class);
+        FileInputFormat.addInputPath(job, new Path(args[0]));
+        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+        System.exit(job.waitForCompletion(true) ? 0 : 1);
+    }
+    /*
+    START CLIENT
+    */
     public static void main(String[] args) throws Exception {
         System.out.println("____________________________________________________________________");
         System.out.println("Welcome to tiny-Google");
@@ -75,7 +100,7 @@ public class WordCount {
                     System.out.println("Not a valid option. Please try again.\n");
                 }
                 else if (input == 1) {
-                    index();
+                    index(args);
                     break;
                 }
                 else {
@@ -103,7 +128,7 @@ public class WordCount {
                 indexFile();
             }
             else if (input == 3) {
-                index();
+                index(args);
             }
         }while(input != 4);
         System.out.println("____________________________________________________________________");
@@ -111,17 +136,45 @@ public class WordCount {
         System.out.println("____________________________________________________________________");
     }
 
-    public static void mapreduce(Strin[] args){
-        Configuration conf = new Configuration();
-        Job job = Job.getInstance(conf, "word count");
-        job.setJarByClass(WordCount.class);
-        job.setMapperClass(TokenizerMapper.class);
-        job.setCombinerClass(IntSumReducer.class);
-        job.setReducerClass(IntSumReducer.class);
-        job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(IntWritable.class);
-        FileInputFormat.addInputPath(job, new Path(args[0]));
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
-        System.exit(job.waitForCompletion(true) ? 0 : 1);
+    public static boolean indexed(){
+        File currDir = new File(".");
+        currDir = new File(currDir.getAbsolutePath());
+        File[] contents = currDir.listFiles();
+
+        for (File f :contents) {
+            if (f.toString().equals("WHATEVER WE NAME OUR INDEX")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void index(String[] args) throws Exception{ 
+        System.out.println("____________________________________________________________________");
+        System.out.println("Creating index from directory.");
+        System.out.println("____________________________________________________________________");
+        mapreduce(args);
+        System.out.println("____________________________________________________________________");
+        return;
+    }
+
+    public static void search() {
+        System.out.println("____________________________________________________________________");
+        System.out.println("Searching...");
+        System.out.println("____________________________________________________________________");
+
+        //TODO Implement search
+
+        System.out.println("____________________________________________________________________");
+    }
+
+    public static void indexFile() {
+        System.out.println("____________________________________________________________________");
+        System.out.println("Indexing file.");
+        System.out.println("____________________________________________________________________");
+
+        //TODO file indexing functionality
+
+        System.out.println("____________________________________________________________________");
     }
 }
