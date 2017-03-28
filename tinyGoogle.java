@@ -2,6 +2,8 @@ import java.io.IOException;
 import java.util.StringTokenizer;
 import java.io.File;
 import java.util.Scanner;
+import java.lang.*;
+import java.io.*;
 
 //import org.apache.opennlp.tools.stemmer.PorterStemmer;
 //import org.apache.lucene.analysis.PorterStemmer;
@@ -81,7 +83,7 @@ public class tinyGoogle {
         job.setOutputValueClass(IntWritable.class);
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
-        job.waitForCompletion(true);
+        job.waitForCompletion(false);
     }
 
     /*
@@ -98,7 +100,7 @@ public class tinyGoogle {
         job.setOutputValueClass(IntWritable.class);
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
-        job.waitForCompletion(true);
+        job.waitForCompletion(false);
     }
     /*
     START CLIENT
