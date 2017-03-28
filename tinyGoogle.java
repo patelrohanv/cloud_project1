@@ -75,7 +75,7 @@ public class tinyGoogle {
             String fileName = "";
             fileName = itr.nextToken();
             fileName = fileName.substring(0, fileName.length()-4);
-            fileName = fileName.replaceAll("by", " by").replaceAll("(.)([A-Z])", "$1 $2");
+            //fileName = fileName.replaceAll("by", " by").replaceAll("(.)([A-Z])", "$1 $2");
             String out = fileName + " " + itr.nextToken();
             Text output = new Text(out);
             context.write(key, output);
