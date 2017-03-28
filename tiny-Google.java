@@ -16,11 +16,11 @@ import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
-public class WordCount {
+public class tiny-Google {
     /*
         MAPREDUCE every book in input to ("word^filename, freq")
     */
-    public static class TokenizerMapper extends Mapper<Object, Text, Text, IntWritable>{
+    public static class frequencyMapper extends Mapper<Object, Text, Text, IntWritable>{
 
         private final static IntWritable one = new IntWritable(1);
         private Text word = new Text();
@@ -47,7 +47,7 @@ public class WordCount {
             return alpha;
         }
     }
-    public static class IntSumReducer extends Reducer<Text,IntWritable,Text,IntWritable> {
+    public static class frequencyReducer extends Reducer<Text,IntWritable,Text,IntWritable> {
         private IntWritable result = new IntWritable();
 
         public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
@@ -63,20 +63,20 @@ public class WordCount {
     /*
         MAPREDUCE everything into an inverted index
     */
-    public static class SecondMapper extends Mapper<Text, IntWritable, Text, IntWritable>{}
+    public static class indexMapper extends Mapper<Text, IntWritable, Text, IntWritable>{}
 
-    public static class SecondReducer extends Reducer<Text,IntWritable,Text,IntWritable> {}
+    public static class indexReducer extends Reducer<Text,IntWritable,Text,IntWritable> {}
 
     /*
         CALL MAPREDUCE JOBS
     */
-    public static void mapreduce(String[] args) throws Exception{
+    public static void wordCount(String[] args) throws Exception{
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, "word count");
         job.setJarByClass(WordCount.class);
-        job.setMapperClass(TokenizerMapper.class);
-        job.setCombinerClass(IntSumReducer.class);
-        job.setReducerClass(IntSumReducer.class);
+        job.setMapperClass(frequencyMapper.class);
+        job.setCombinerClass(frequencyReducer.class);
+        job.setReducerClass(frequencyReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
         FileInputFormat.addInputPath(job, new Path(args[0]));
@@ -149,11 +149,11 @@ public class WordCount {
         return false;
     }
 
-    public static void index(String[] args) throws Exception{ 
+    public static void index(String[] args) throws Exception{
         System.out.println("____________________________________________________________________");
         System.out.println("Creating index from directory.");
         System.out.println("____________________________________________________________________");
-        mapreduce(args);
+        wordCount(args);
         System.out.println("____________________________________________________________________");
         return;
     }
