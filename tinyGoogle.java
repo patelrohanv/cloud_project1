@@ -166,12 +166,13 @@ public class tinyGoogle {
         }
         else {
             while(true) {
-                System.out.println("An index already exists on disk.\nWould you like to use the existing index?\n\t1. Yes\n\t2. No");
+                System.out.println("An index already exists on disk.\nWould you like to use the existing index or create a new one?\n\t1. Use the existing index\n\t2. Create a new one");
                 input = kbd.nextInt();
                 if(input > 2 || input < 1){
                     System.out.println("Not a valid option. Please try again.\n");
                 }
                 else if (input == 2) {
+                    System.out.println("Ok, existing index will be deleted.");
                     removeDirectory(new File(currDir + "/index"));
                     index(args);
                     break;
@@ -221,7 +222,7 @@ public class tinyGoogle {
 
     public static void index(String[] args) throws Exception{
         System.out.println("____________________________________________________________________");
-        System.out.println("Creating index from directory.");
+        System.out.println("Creating New Index.");
         System.out.println("____________________________________________________________________");
         Scanner in = new Scanner(System.in);
         System.out.print("Please enter input path:");
