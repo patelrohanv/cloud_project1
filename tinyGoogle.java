@@ -130,6 +130,24 @@ public class tinyGoogle {
                 }
             }
         }
+        else {
+            while(true) {
+                System.out.println("An index already exists on disk.\nWould you like to use the existing index?\n\t1. Yes\n\t2. No");
+                input = kbd.nextInt();
+                if(input > 2 || input < 1){
+                    System.out.println("Not a valid option. Please try again.\n");
+                }
+                else if (input == 2) {
+                    index(args);
+                    break;
+                }
+                else {
+                    System.out.println("Ok, existing index will be used.");
+                    System.out.println("____________________________________________________________________");
+                    break;
+                }
+            }
+        }
 
         do{
             System.out.println("Enter an option:\n\t1. Search for a word \n\t2. Add a document \n\t3. Generate Index from Directory\n\t4. Quit");
