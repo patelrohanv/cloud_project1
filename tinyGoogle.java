@@ -1,11 +1,10 @@
-import java.io.IOException;
-import java.util.StringTokenizer;
-import java.io.File;
-import java.util.Scanner;
-import java.lang.*;
 import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.lang.*;
 import java.util.*;
-
+import java.util.Scanner;
+import java.util.StringTokenizer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -13,12 +12,13 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class tinyGoogle {
+
     public static File file = new File(".");
     public static String currDir = file.getAbsolutePath();
 
@@ -164,9 +164,7 @@ public class tinyGoogle {
     public static void bruteIndex(Path iPath){
         String partR = iPath.toString()+"/part-r-00000";
         try{
-            //System.out.println("here");
             Scanner f = new Scanner(new File(partR));
-            //System.out.println("here1");
             while(f.hasNextLine()){
                 String line = f.nextLine();
 
@@ -180,7 +178,6 @@ public class tinyGoogle {
                 doc = itr.nextToken().replaceAll("of", " of").replaceAll("by", " by").replaceAll("(.)([A-Z])", "$1 $2");
                 freq = Integer.parseInt(itr.nextToken());
 
-                //System.out.println("Term: " + term + ", Doc: " + doc + ", Freq: " + freq);
                 if(!hashmap.containsKey(term)){
                     hashmap.put(term, new LinkedList<indexPair>());
                     hashmap.get(term).add(new indexPair(doc, freq));
